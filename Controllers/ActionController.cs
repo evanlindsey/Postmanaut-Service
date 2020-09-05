@@ -39,6 +39,7 @@ namespace PostmanautService.Controllers
 
     public class ActionCommand
     {
+        public string user { get; set; }
         public string perform { get; set; }
         public string direction { get; set; }
     }
