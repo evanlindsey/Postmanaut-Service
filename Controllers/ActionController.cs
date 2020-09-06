@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using PostmanautService.Hubs;
@@ -17,18 +18,18 @@ namespace PostmanautService.Controllers
 
         [HttpPost]
         [Route("{contextId}")]
-        public IActionResult SendAction(string contextId, [FromBody] ActionCommand action)
+        public async Task<ActionResult<ActionCommand>> SendAction(string contextId, [FromBody] ActionCommand action)
         {
             string command = JsonSerializer.Serialize(action);
-            _hubContext.Clients.Client(contextId).SendAsync("ReceiveAction", command);
+            await _hubContext.Clients.Client(contextId).SendAsync("ReceiveAction", command);
             return Ok(action);
         }
 
         [HttpGet]
         [Route("ls")]
-        public IActionResult GetActions()
+        public ActionResult<ActionList> GetActions()
         {
-            var actionList = new
+            var actionList = new ActionList
             {
                 perform = new string[] { "move", "flip", "stop" },
                 direction = new string[] { "forward", "back", "left", "right" }
@@ -42,5 +43,11 @@ namespace PostmanautService.Controllers
         public string user { get; set; }
         public string perform { get; set; }
         public string direction { get; set; }
+    }
+
+    public class ActionList
+    {
+        public string[] perform { get; set; }
+        public string[] direction { get; set; }
     }
 }
