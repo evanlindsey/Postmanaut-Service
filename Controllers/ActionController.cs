@@ -17,37 +17,16 @@ namespace PostmanautService.Controllers
         }
 
         [HttpPost]
-        [Route("{contextId}")]
-        public async Task<ActionResult<ActionCommand>> SendAction(string contextId, [FromBody] ActionCommand action)
+        [Route("{clientId}")]
+        public async Task<ActionResult> SendAction(string clientId, [FromBody] dynamic action)
         {
-            string command = JsonSerializer.Serialize(action);
-            await _hubContext.Clients.Client(contextId).SendAsync("ReceiveAction", command);
-            return Ok(action);
-        }
-
-        [HttpGet]
-        [Route("ls")]
-        public ActionResult<ActionList> GetActions()
-        {
-            var actionList = new ActionList
+            if (ActionHub.clients.ContainsKey(clientId))
             {
-                perform = new string[] { "move", "flip", "stop" },
-                direction = new string[] { "forward", "back", "left", "right" }
-            };
-            return Ok(actionList);
+                string command = JsonSerializer.Serialize(action);
+                await _hubContext.Clients.Client(clientId).SendAsync("ReceiveAction", command);
+                return Ok(action);
+            }
+            return NotFound();
         }
-    }
-
-    public class ActionCommand
-    {
-        public string user { get; set; }
-        public string perform { get; set; }
-        public string direction { get; set; }
-    }
-
-    public class ActionList
-    {
-        public string[] perform { get; set; }
-        public string[] direction { get; set; }
     }
 }
