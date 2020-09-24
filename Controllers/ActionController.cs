@@ -28,5 +28,16 @@ namespace PostmanautService.Controllers
             }
             return NotFound();
         }
+
+        [HttpGet]
+        [Route("{clientId}")]
+        public ActionResult Ping(string clientId)
+        {
+            if (ActionHub.clients.ContainsKey(clientId))
+            {
+                return Ok(new { clientId = clientId });
+            }
+            return NotFound();
+        }
     }
 }
